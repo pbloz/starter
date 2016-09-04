@@ -1,42 +1,43 @@
 package com.example.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.model.User;
 import com.example.repository.UserDao;
+
+import java.util.List;
 
 @Controller
 public class UserController {
 
 	@RequestMapping("/create")
 	@ResponseBody
-	public String create(String email, String name) {
-		String userId = "";
+	public ResponseEntity<User> create(String email, String name) {
 		try {
-			// User user = new User(email, name);
 			user.setEmail(email);
 			user.setName(name);
 			userDao.save(user);
-			userId = String.valueOf(user.getId());
 		} catch (Exception ex) {
-			return "Error creating the user: " + ex.toString();
+			return new ResponseEntity<User>(user,HttpStatus.BAD_REQUEST);
 		}
-		return "User succesfully created with id = " + userId;
+		return new ResponseEntity<User>(user,HttpStatus.CREATED);
 	}
 
 	@RequestMapping("/delete")
-	@ResponseBody
-	public String delete(long id) {
+	public ResponseEntity<User> delete(long id) {
 		try {
 			User user = new User(id);
 			userDao.delete(user);
 		} catch (Exception ex) {
-			return "Error deleting the user:" + ex.toString();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return "User succesfully deleted!";
+        return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
 	/**
@@ -44,15 +45,13 @@ public class UserController {
 	 */
 	@RequestMapping("/get-by-email")
 	@ResponseBody
-	public String getByEmail(String email) {
-		String userId = "";
+	public ResponseEntity<User> getByEmail(String email) {
 		try {
 			User user = userDao.findByEmail(email);
-			userId = String.valueOf(user.getId());
 		} catch (Exception ex) {
-			return "User not found";
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return "The user id is: " + userId;
+		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
 	/**
@@ -61,16 +60,21 @@ public class UserController {
 	 */
 	@RequestMapping("/update")
 	@ResponseBody
-	public String updateUser(long id, String email, String name) {
+	public ResponseEntity<User> updateUser(long id, String email, String name) {
 		try {
 			User user = userDao.findOne(id);
 			user.setEmail(email);
 			user.setName(name);
 			userDao.save(user);
 		} catch (Exception ex) {
-			return "Error updating the user: " + ex.toString();
+			return new ResponseEntity<User>(user,HttpStatus.BAD_REQUEST);
 		}
-		return "User succesfully updated!";
+		return new ResponseEntity<User>(user,HttpStatus.OK);
+	}
+	@RequestMapping(name = "/users",method = RequestMethod.GET)
+	public ResponseEntity<List<User>> getAllUsers(){
+		List<User> all = (List<User>) userDao.findAll();
+		return new ResponseEntity<List<User>>(all, HttpStatus.OK);
 	}
 
 	// Private fields
