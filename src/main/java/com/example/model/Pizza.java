@@ -11,9 +11,9 @@ public class Pizza {
     @GeneratedValue
     private Long id;
     private String name;
-    @OneToOne
+   // @OneToOne
     private Cake cake;
-    @OneToOne
+   // @OneToOne
     private Size size;
     private Double price;
 
